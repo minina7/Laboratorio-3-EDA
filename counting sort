@@ -1,0 +1,39 @@
+//metodo counting sort, van dentro de la clase dataset
+
+ private void countingSortPruebas() {
+        int maxQuality = 100;
+        ArrayList<ArrayList<Game>> conteo = new ArrayList<>();
+        for (int i = 0; i <= maxQuality; i++) {
+            conteo.add(new ArrayList<>());
+        }
+
+        for (Game juego : data) {
+            conteo.get(juego.quality).add(juego);
+        }
+
+        ArrayList<Game> ordenados = new ArrayList<>();
+        for (int i = 0; i <= maxQuality; i++) {
+            ordenados.addAll(conteo.get(i));
+        }
+
+        data = ordenados;
+        sortedByAttribute = "quality";
+    }
+
+//main 
+
+public class Main {
+    public static void main(String[] args) {
+        int[] tamaños = {100, 10000, 1000000};
+
+        for (int tamaño : tamaños) {
+            ArrayList<Game> prueba = GenerateData.generate(tamaño);
+            Dataset dataset = new Dataset(prueba);
+
+            long inicio = System.currentTimeMillis();
+            dataset.sortByAlgorithm("countingSort", "quality");
+            long fin = System.currentTimeMillis();
+
+            System.out.println("Tamaño: " + tamaño + " - Tiempo de Counting Sort: " + (fin - inicio) + " ms");
+        }
+    }
