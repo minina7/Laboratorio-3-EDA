@@ -1,0 +1,41 @@
+public class main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Game> baseData = GenerateData.generate(1000000);
+        while (true) {
+            System.out.println("¿Que metodo?");
+            System.out.println("1. getGamesByPrice");
+            System.out.println("2. getGamesByPriceRange");
+            System.out.println("3. getGamesByCategory");
+            System.out.println("4. Terminar");
+            System.out.print("Opcion: ");
+            int opcion = Integer.parseInt(scanner.nextLine());
+
+            if (opcion == 4) {
+                break;
+            }
+            System.out.println("Tipo de busqueda: lineal o binaria. ");
+            String tipo = scanner.nextLine().toLowerCase();
+
+            Dataset dataset = new Dataset(new ArrayList<>(baseData));
+
+            if (tipo.equals("binaria")) {
+                if (opcion == 1 || opcion == 2) {
+                    dataset.sortByAlgorithm("mergeSort", "price");
+                } else if (opcion == 3) {
+                    dataset.sortByAlgorithm("mergeSort", "category");
+                }
+            }
+            long start = System.currentTimeMillis();
+
+            switch (opcion) {
+                case 1 -> dataset.getGamesByPrice(2000);
+                case 2 -> dataset.getGamesByPriceRange(750, 60000);
+                case 3 -> dataset.getGamesByCategory("Estrategia");
+            }
+            long end = System.currentTimeMillis();
+            long duracion = end - start;
+            System.out.printf("→ Tiempo de ejecución: %d ms\n", duracion);
+        }scanner.close();
+    }
+}
