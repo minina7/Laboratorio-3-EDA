@@ -1,0 +1,135 @@
+class GenerateData {
+    private static final String[] nameS = {"Dragon", "Empire", "Quest", "Galaxy","War","Flower"};
+    private static final String[] categoryS = {"Aventura", "Estrategia", "Deportes", "RPG","MMORPG"};
+
+    public static ArrayList<Game> generate(int cantidad) {
+        ArrayList<Game> juegos = new ArrayList<>();
+        Random generador = new Random();
+
+        for (int i = 0; i < cantidad; i++) {
+            String name = nameS[generador.nextInt(nameS.length)] + nameS[generador.nextInt(nameS.length)];
+            String category = categoryS[generador.nextInt(categoryS.length)];
+            int price = generador.nextInt(70001);
+            int quality = generador.nextInt(101);
+
+            juegos.add(new Game(name, category, price, quality));
+        }
+        return juegos;
+    }
+}
+
+class MainGenerate {
+    public static void main(String[] args) {
+        ArrayList<Game> chico = GenerateData.generate(100);
+        ArrayList<Game> mediano = GenerateData.generate(10_000);
+        ArrayList<Game> grande = GenerateData.generate(1_000_000);
+
+        saveToFile(chico, "dataset_100.csv");
+        saveToFile(mediano, "dataset_10000.csv");
+        saveToFile(grande, "dataset_1000000.csv");
+    }
+
+    public static void saveToFile(ArrayList<Game> list, String filename) {
+        try (PrintWriter writer = new PrintWriter(new File(filename))) {
+            for (Game g : list) {
+                writer.printf("%s,%s,%d,%d%n", g.name, g.category, g.price, g.quality);
+            }
+            System.out.println("Archivo guardado: " + filename);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+public class BenchmarkSort{
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Benchmark de ordenamiento.");
+        while (true) {
+            System.out.println("¿Que algoritmo quiere utilizar?");
+            System.out.println("Opciones: bubbleSort, insertionSort, selectionSort, mergeSort, quickSort, collectionsSort");
+            String algoritmo = scanner.nextLine();
+            System.out.println("¿Por que atributo quiere buscar?");
+            System.out.println("Opciones: price, category, quality");
+            String atributo = scanner.nextLine();
+            System.out.println("¿Tamaño de dataset?");
+            System.out.println("Opciones: 100, 10000, 1000000");
+            int tamaño = scanner.nextInt();
+            scanner.nextLine();
+            System.out.println("Generando datos aleatorios...");
+            ArrayList<Game> lista = GenerateData.generate(tamaño);
+            long totalTiempo = 0;
+            int repeticiones = 3;
+            for (int i = 0; i < repeticiones; i++) {
+                ArrayList<Game> copia = new ArrayList<>();
+                for (Game g : lista) {
+                    copia.add(new Game(g.name, g.category, g.price, g.quality));
+                }
+                Dataset dataset = new Dataset(copia);
+                long start = System.currentTimeMillis();
+                dataset.sortByAlgorithm(algoritmo, atributo);
+                long end = System.currentTimeMillis();
+                long duracion = end - start;
+                totalTiempo += duracion;
+                System.out.printf("  → Ejecucion %d: %d ms\n", i + 1, duracion);
+            }
+            long promedio = totalTiempo / repeticiones;
+            System.out.println("\nResultado final:");
+            System.out.printf("Algoritmo: %s | Atributo: %s | Tamaño: %d | Tiempo promedio: %d ms\n",
+                    algoritmo, atributo, tamaño, promedio);
+
+            System.out.println("\n¿Reiniciar prueba? si o no.");
+            String continuar = scanner.nextLine().trim().toLowerCase();
+            if (!continuar.equals("si")) {
+                System.out.println("Prueba terminada.");
+                break;
+            }
+        }
+        scanner.close();
+    }
+}
+
+
+
+public class main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Game> baseData = GenerateData.generate(1000000);
+        while (true) {
+            System.out.println("¿Que metodo?");
+            System.out.println("1. getGamesByPrice");
+            System.out.println("2. getGamesByPriceRange");
+            System.out.println("3. getGamesByCategory");
+            System.out.println("4. Terminar");
+            System.out.print("Opcion: ");
+            int opcion = Integer.parseInt(scanner.nextLine());
+
+            if (opcion == 4) {
+                break;
+            }
+            System.out.println("Tipo de busqueda: lineal o binaria. ");
+            String tipo = scanner.nextLine().toLowerCase();
+
+            Dataset dataset = new Dataset(new ArrayList<>(baseData));
+
+            if (tipo.equals("binaria")) {
+                if (opcion == 1 || opcion == 2) {
+                    dataset.sortByAlgorithm("mergeSort", "price");
+                } else if (opcion == 3) {
+                    dataset.sortByAlgorithm("mergeSort", "category");
+                }
+            }
+            long start = System.currentTimeMillis();
+
+            switch (opcion) {
+                case 1 -> dataset.getGamesByPrice(2000);
+                case 2 -> dataset.getGamesByPriceRange(750, 60000);
+                case 3 -> dataset.getGamesByCategory("Estrategia");
+            }
+            long end = System.currentTimeMillis();
+            long duracion = end - start;
+            System.out.printf("→ Tiempo de ejecución: %d ms\n", duracion);
+        }scanner.close();
+    }
+}
